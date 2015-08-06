@@ -3,14 +3,14 @@
 /**
  * 
  * @link              http://www.karalamalar.net/category-post-count/
- * @since             0.1
+ * @since             0.1.1
  * @package           Category_Post_Count
  *
  * @wordpress-plugin
  * Plugin Name:       Category Post Count
  * Plugin URI:        http://wordpress.org/plugins/category-post-count/
  * Description:       With this plugin you can set the posts_per_page and posts_per_rss settings for individual categories.
- * Version:           0.1
+ * Version:           0.1.1
  * Author:            Emre Erkan
  * Author URI:        http://www.karalamalar.net/category-post-count/
  * License:           GPL-2.0+
@@ -24,7 +24,6 @@ defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 class Category_Post_Count {
   private $cat_key;
   private $counts;
-  private $name = 'category-post-count';
   
   function __construct() {
     add_action( 'plugins_loaded', array( $this, 'init' ) );
@@ -32,7 +31,7 @@ class Category_Post_Count {
   }
   
   function init() {
-    load_plugin_textdomain( $this->name, false, $this->name . '/languages/' );
+    load_plugin_textdomain( 'category-post-count', false, 'category-post-count/languages/' );
     if ( is_admin() ) {
       add_action( 'init', array( $this, 'admin_init' ) );
     }
@@ -50,7 +49,7 @@ class Category_Post_Count {
       
       if ( $cat ) {
         $this->cat_key = 'cat_' . $cat->term_id;
-        $this->counts = get_option( $this->name );
+        $this->counts = get_option( 'category-post-count' );
         
         if ( is_array( $this->counts ) && array_key_exists( $this->cat_key, $this->counts ) ) {
           if ( is_feed() && isset( $this->counts[ $this->cat_key ][ 'feed_count' ] ) ) {
@@ -67,34 +66,34 @@ class Category_Post_Count {
   function add_fields_to_category_form( $taxonomy ) {
   ?>
   <div class="form-field">
-    <label for="post_count"><?php _e( 'Post count', $this->name ); ?></label>
+    <label for="post_count"><?php _e( 'Post count', 'category-post-count' ); ?></label>
     <input name="post_count" id="post_count" type="text" value="" size="40" />
-    <p><?php _e( 'Post count for this category to display', $this->name ); ?></p>
+    <p><?php _e( 'Post count for this category to display', 'category-post-count' ); ?></p>
   </div>
   <div class="form-field">
-    <label for="feed_count"><?php _e( 'Feed count', $this->name ); ?></label>
+    <label for="feed_count"><?php _e( 'Feed count', 'category-post-count' ); ?></label>
     <input name="feed_count" id="feed_count" type="text" value="" size="40" />
-    <p><?php _e( 'Post count for this category to display in RSS feed', $this->name ); ?></p>
+    <p><?php _e( 'Post count for this category to display in RSS feed', 'category-post-count' ); ?></p>
   </div>
   <?php
   }
    
   function edit_fields_of_category_form( $tag, $taxonomy ) {
       $this->cat_key = 'cat_' . $tag->term_id;
-      $this->counts = get_option( $this->name );
+      $this->counts = get_option( 'category-post-count' );
   ?>
   <tr class="form-field">
-    <th scope="row"><label for="post_count"><?php _e( 'Post count', $this->name ); ?></label></th>
+    <th scope="row"><label for="post_count"><?php _e( 'Post count', 'category-post-count' ); ?></label></th>
     <td>
       <input type="text" name="post_count" id="post_count" value="<?php echo esc_attr( $this->counts[ $this->cat_key ][ 'post_count'] ) ? esc_attr( $this->counts[ $this->cat_key ][ 'post_count'] ) : ''; ?>" size="40" />
-      <p class="description"><?php _e( 'Post count for this category to display', $this->name ); ?></p>
+      <p class="description"><?php _e( 'Post count for this category to display', 'category-post-count' ); ?></p>
     </td>
   </tr>
   <tr class="form-field">
-    <th scope="row"><label for="feed_count"><?php _e( 'Feed count', $this->name ); ?></label></th>
+    <th scope="row"><label for="feed_count"><?php _e( 'Feed count', 'category-post-count' ); ?></label></th>
     <td>
       <input type="text" name="feed_count" id="feed_count" value="<?php echo esc_attr( $this->counts[ $this->cat_key ][ 'feed_count' ] ) ? esc_attr( $this->counts[ $this->cat_key ][ 'feed_count' ] ) : ''; ?>" size="40" />
-      <p class="description"><?php _e( 'Post count for this category to display in RSS feed', $this->name ); ?></p>
+      <p class="description"><?php _e( 'Post count for this category to display in RSS feed', 'category-post-count' ); ?></p>
     </td>
   </tr>
   <?php
@@ -103,19 +102,19 @@ class Category_Post_Count {
   function category_form_save( $term_id, $tt_id ) {
     if ( isset( $_POST[ 'post_count' ] ) || isset( $_POST[ 'feed_count' ] ) ) {
       $this->cat_key = 'cat_' . $term_id;
-      $this->counts = get_option( $this->name );
+      $this->counts = get_option( 'category-post-count' );
       if ( isset( $_POST[ 'post_count' ] ) ) {
         $this->counts[ $this->cat_key ][ 'post_count' ] = $_POST[ 'post_count' ];
       }
       if ( isset( $_POST[ 'feed_count' ] ) ) {
         $this->counts[ $this->cat_key ][ 'feed_count' ] = $_POST[ 'feed_count' ];
       }
-      update_option( $this->name, $this->counts );
+      update_option( 'category-post-count', $this->counts );
     }
   }
 
   function add_column_header( $columns ) {
-    $columns['post_feed_count'] = __( 'Post/Feed Count', $this->name );
+    $columns['post_feed_count'] = __( 'Post/Feed Count', 'category-post-count' );
     return $columns;
   }
 
@@ -124,7 +123,7 @@ class Category_Post_Count {
       $post_count = get_option( 'posts_per_page' );
       $feed_count = get_option( 'posts_per_rss' );
       $this->cat_key = 'cat_' . $term_id;
-      $this->counts = get_option( $this->name );
+      $this->counts = get_option( 'category-post-count' );
       if( is_array( $this->counts ) && array_key_exists( $this->cat_key, $this->counts ) ) {
         if( array_key_exists( 'post_count', $this->counts[ $this->cat_key ] ) && !empty( $this->counts[ $this->cat_key ][ 'post_count' ] ) ) {
           $post_count = $this->counts[ $this->cat_key ][ 'post_count' ];
